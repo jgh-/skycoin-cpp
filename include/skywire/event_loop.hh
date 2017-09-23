@@ -17,7 +17,7 @@ namespace skywire {
 
     class event_loop {
     public:
-        event_loop(int max_events = 10240);
+        event_loop(int max_events = 10240, bool handle_signals = true);
         ~event_loop();
 
         void register_handler(int fd, event_handler_f handler, int events = EPOLLIN | EPOLLET | EPOLLOUT);
@@ -30,6 +30,7 @@ namespace skywire {
 
     private:
         std::unordered_map<int, event_handler_f> handlers_;
+        int fd_wakeup_;
         int fd_signal_;
         int fd_epoll_;
         int max_events_;
