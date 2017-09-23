@@ -16,6 +16,17 @@ echo "3rd Party Software" > $THIRDPARTY
 echo "-=-=-=-=-=-=-=-=-=" >> $THIRDPARTY
 GIT_REV=""
 
+# unpause tools
+git clone https://github.com/unpause-live/cpptools.git $DEPS/unpause-tools
+pushd $DEPS/unpause-tools
+    cp -R include/* $WORKING_DIR/cpp_modules/include
+     GIT_REV=$(git rev-parse --short HEAD)
+    cp -R include/unpause/* $WORKING_DIR/cpp_modules/include/unpause
+    printf "\n\nC++Tools by Unpause ($GIT_REV)\n" >> $THIRDPARTY
+    cat LICENSE >> $THIRDPARTY
+    echo $SEPARATOR >> $THIRDPARTY
+popd
+
 # spdlog
 git clone https://github.com/gabime/spdlog.git $DEPS/spdlog
 mkdir -p $WORKING_DIR/cpp_modules/include/spdlog
