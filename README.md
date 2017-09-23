@@ -1,0 +1,1 @@
+Linux only. Maybe one day non-linux. Not today, though.
