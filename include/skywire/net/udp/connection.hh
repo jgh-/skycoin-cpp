@@ -1,11 +1,11 @@
 
-#ifndef SKYWIRE__TCP_CONNECTION_HH
-#define SKYWIRE__TCP_CONNECTION_HH
+#ifndef SKYWIRE__UDP_CONNECTION_HH
+#define SKYWIRE__UDP_CONNECTION_HH
 
 #include <skywire/event_handler.hh>
 #include <string>
 
-namespace skywire { namespace tcp {
+namespace skywire { namespace udp {
 
     class connection;
 

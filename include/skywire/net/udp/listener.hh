@@ -1,12 +1,12 @@
-#ifndef SKYWIRE__TCP_LISTENER_HH
-#define SKYWIRE__TCP_LISTENER_HH
+#ifndef SKYWIRE__UDP_LISTENER_HH
+#define SKYWIRE__UDP_LISTENER_HH
 
-#include <skywire/net/tcp/connection.hh>
+#include <skywire/net/udp/connection.hh>
 #include <unpause/async>
 #include <memory>
 #include <list>
 
-namespace skywire { namespace tcp {
+namespace skywire { namespace udp {
 
     class listener : public event_handler {
     public:
@@ -36,4 +36,4 @@ namespace skywire { namespace tcp {
 } // namespace tcp
 } // namespace skywire
 
-#endif // SKYWIRE__TCP_LISTENER_HH
+#endif // SKYWIRE__UDP_LISTENER_HH
