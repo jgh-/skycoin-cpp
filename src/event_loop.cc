@@ -39,7 +39,7 @@ namespace skywire {
             sigset_t mask;
             sigemptyset(&mask);
             sigaddset(&mask, SIGINT); // graceful shutdown
-            //sigaddset(&mask, SIGTERM); // immediate shutdown
+            sigaddset(&mask, SIGTERM); // immediate shutdown
             int err = sigprocmask(SIG_BLOCK, &mask, NULL);
             if(err) {
                 log().critical("sigprocmask: {}", strerror(errno));
