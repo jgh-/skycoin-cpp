@@ -1,11 +1,11 @@
 
-#ifndef SKYWIRE__UDP_CONNECTION_HH
-#define SKYWIRE__UDP_CONNECTION_HH
+#ifndef skycoin__TCP_CONNECTION_HH
+#define skycoin__TCP_CONNECTION_HH
 
-#include <skywire/event_handler.hh>
+#include <skycoin/event_handler.hh>
 #include <string>
 
-namespace skywire { namespace udp {
+namespace skycoin { namespace tcp {
 
     class connection;
 

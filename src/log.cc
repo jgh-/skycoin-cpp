@@ -1,7 +1,7 @@
-#include <skywire/log.hh>
+#include <skycoin/log.hh>
 #include <memory>
 
-namespace skywire { 
+namespace skycoin { 
 
     static std::shared_ptr<spdlog::logger> logger_;
 
@@ -10,7 +10,7 @@ namespace skywire {
 
         // TODO: Handle logging to file based on build parameters
         if(!logger_) {
-            logger_ = spdlog::stdout_color_mt("skywire");
+            logger_ = spdlog::stdout_color_mt("skycoin");
         }
 
         return *logger_;

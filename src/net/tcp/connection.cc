@@ -8,8 +8,8 @@
  *  information.
  */
 
-#include <skywire/net/tcp/connection.hh>
-#include <skywire/log.hh>
+#include <skycoin/net/tcp/connection.hh>
+#include <skycoin/log.hh>
 
 #include <arpa/inet.h>
 #include <sys/types.h>
@@ -21,7 +21,7 @@
 #include <netdb.h>
 #include <fcntl.h>
 
-namespace skywire { namespace tcp {
+namespace skycoin { namespace tcp {
     connection::connection(int fd, std::string out_addr, int port)
     : addr_out_(out_addr)
     , pipe_max_size_(4096)

@@ -1,8 +1,8 @@
-#ifndef SKYWIRE__EVENTLOOP_HH
-#define SKYWIRE__EVENTLOOP_HH
+#ifndef skycoin__EVENTLOOP_HH
+#define skycoin__EVENTLOOP_HH
 
 
-#include <skywire/event_handler.hh>
+#include <skycoin/event_handler.hh>
 
 #include <unordered_map>
 #include <functional>
@@ -13,7 +13,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 
-namespace skywire {
+namespace skycoin {
 
     class event_loop;
     using shutdown_handler_f = std::function<void(event_loop&)>;
@@ -44,7 +44,7 @@ namespace skywire {
         std::atomic<int> exiting_;
     }; // class event_loop
 
-} // namespace skywire
+} // namespace skycoin
 
 
-#endif // SKYWIRE__EVENTLOOP_HH
+#endif // skycoin__EVENTLOOP_HH

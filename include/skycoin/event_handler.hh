@@ -1,9 +1,9 @@
-#ifndef SKYWIRE__EVENT_HANDLER_HH
-#define SKYWIRE__EVENT_HANDLER_HH
+#ifndef skycoin__EVENT_HANDLER_HH
+#define skycoin__EVENT_HANDLER_HH
 
 #include <functional>
 
-namespace skywire {
+namespace skycoin {
 
     using event_handler_f = std::function<int(int fd, uint32_t events)>;
     using register_handler_f = std::function<void(int, event_handler_f register_handler)>;
@@ -30,6 +30,6 @@ namespace skywire {
         unregister_handler_f    unregister_handler_;
         bool registered_ = false;
     };  // class event_handler
-}   // namespace skywire
+}   // namespace skycoin
 
-#endif // SKYWIRE__EVENT_LOOP_HH
+#endif // skycoin__EVENT_LOOP_HH

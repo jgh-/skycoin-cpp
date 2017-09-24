@@ -1,12 +1,12 @@
-#ifndef SKYWIRE__UDP_LISTENER_HH
-#define SKYWIRE__UDP_LISTENER_HH
+#ifndef skycoin__TCP_LISTENER_HH
+#define skycoin__TCP_LISTENER_HH
 
-#include <skywire/net/udp/connection.hh>
+#include <skycoin/net/tcp/connection.hh>
 #include <unpause/async>
 #include <memory>
 #include <list>
 
-namespace skywire { namespace udp {
+namespace skycoin { namespace tcp {
 
     class listener : public event_handler {
     public:
@@ -35,6 +35,6 @@ namespace skywire { namespace udp {
     };
 
 } // namespace tcp
-} // namespace skywire
+} // namespace skycoin
 
-#endif // SKYWIRE__UDP_LISTENER_HH
+#endif // skycoin__TCP_LISTENER_HH

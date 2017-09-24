@@ -1,6 +1,6 @@
 
-#include <skywire/net/tcp/listener.hh>
-#include <skywire/log.hh>
+#include <skycoin/net/tcp/listener.hh>
+#include <skycoin/log.hh>
 
 #include <arpa/inet.h>
 #include <sys/types.h>
@@ -14,7 +14,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-namespace skywire { namespace tcp {
+namespace skycoin { namespace tcp {
 
     listener::listener(std::string in_addr, int in_port, std::string out_addr, int out_port, unpause::async::thread_pool& pool) 
     : addr_in_(in_addr)

@@ -1,11 +1,11 @@
-#include <skywire/event_loop.hh>
-#include <skywire/log.hh>
+#include <skycoin/event_loop.hh>
+#include <skycoin/log.hh>
 
 #include <sys/signalfd.h>
 #include <signal.h>
 #include <assert.h>
 
-namespace skywire {
+namespace skycoin {
     
     event_loop::event_loop(int max_events, bool handle_signals) 
     : fd_wakeup_(-1)

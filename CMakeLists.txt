@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-project(skywire)
+project(skycoin)
 set(CMAKE_BUILD_TYPE Debug)
 
 include_directories(include cpp_modules/include)
@@ -9,6 +9,6 @@ file(GLOB SOURCES "src/*.cc" "src/net/tcp/*.cc" "src/net/udp/*.cc")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wpedantic -Werror -pthread")
 
-add_library(skywire STATIC ${SOURCES})
+add_library(skycoin STATIC ${SOURCES})
 add_executable(node "src/cmd/node.cc")
-target_link_libraries(node skywire)
+target_link_libraries(node skycoin)

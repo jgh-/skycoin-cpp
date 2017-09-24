@@ -1,22 +1,22 @@
-#include <skywire/net/tcp/listener.hh>
-#include <skywire/net/udp/listener.hh>
-#include <skywire/event_loop.hh>
-#include <skywire/log.hh>
+#include <skycoin/net/tcp/listener.hh>
+#include <skycoin/net/udp/listener.hh>
+#include <skycoin/event_loop.hh>
+#include <skycoin/log.hh>
 
 #include <unpause/async>
 
 int main(int argc, char* argv[]) {
 
-    skywire::log().info("skywire node (c++) 0.1");
+    skycoin::log().info("skycoin node (c++) 0.1");
 
-    skywire::event_loop e; // instantiate before thread pool so children take signal mask
+    skycoin::event_loop e; // instantiate before thread pool so children take signal mask
 
     unpause::async::thread_pool pool(std::thread::hardware_concurrency() * 2);
 
-    skywire::tcp::listener tcp("*", 2020, "localhost", 2021, pool);
-    skywire::udp::listener udp("*", 2000, "localhost", 2001, pool);
+    skycoin::tcp::listener tcp("*", 2020, "localhost", 2021, pool);
+    skycoin::udp::listener udp("*", 2000, "localhost", 2001, pool);
 
-    tcp.set_register_handler([&e](int fd, skywire::event_handler_f handler) {
+    tcp.set_register_handler([&e](int fd, skycoin::event_handler_f handler) {
         e.register_handler(fd, handler);
     });
 
@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
         e.unregister_handler(fd);
     });
 
-    udp.set_register_handler([&e](int fd, skywire::event_handler_f handler) {
+    udp.set_register_handler([&e](int fd, skycoin::event_handler_f handler) {
         e.register_handler(fd, handler);
     });
 
@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
         e.unregister_handler(fd);
     });
 
-    e.shutdown_handler([&tcp, &udp] (skywire::event_loop& e) {
+    e.shutdown_handler([&tcp, &udp] (skycoin::event_loop& e) {
         e.unregister_handler(tcp.fd());
         e.unregister_handler(udp.fd());
     });
