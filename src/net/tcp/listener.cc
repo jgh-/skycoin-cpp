@@ -9,6 +9,7 @@
 #include <sys/prctl.h>
 #include <sys/epoll.h>
 #include <sys/socket.h>
+#include <netdb.h>
 
 #include <unistd.h>
 #include <fcntl.h>
@@ -23,31 +24,30 @@ namespace skywire { namespace tcp {
     , port_in_(in_port)
     , port_out_(out_port)
     {
-        struct sockaddr_in dest_addr;
-        memset(&dest_addr, 0, sizeof(dest_addr));
+        struct addrinfo hints {};
+        struct addrinfo *l_addr = nullptr;
 
-        dest_addr.sin_family = AF_INET;
+        hints.ai_family = AF_UNSPEC;
+        hints.ai_socktype = SOCK_STREAM;
+        hints.ai_flags = AI_PASSIVE;
 
-        if(in_addr == "*") {
-            dest_addr.sin_addr.s_addr = htonl(INADDR_ANY);    
-        } else {
-            dest_addr.sin_addr.s_addr = inet_addr(in_addr.c_str());
-        }
+        const char* host = in_addr == "*" ? nullptr : in_addr.c_str();
+
+        int res = getaddrinfo(host, std::to_string(in_port).c_str(), &hints, &l_addr);
         
-        dest_addr.sin_port = htons(in_port);
+        if(res < 0) {
+            log().error("getaddrinfo {}", gai_strerror(res));
+            return;
+        }
 
-        fd_ = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        fd_ = socket(l_addr->ai_family, l_addr->ai_socktype, l_addr->ai_protocol);
         if(fd_ < 0)
         {
             log().error("Unable to open port {}: {}", in_port, strerror(errno));
+            freeaddrinfo(l_addr);
             return;
         }
-        log().info("Got socket: {}", fd_);
-        char sockopt = 1;
-        setsockopt (fd_, SOL_SOCKET, SO_REUSEADDR, &sockopt, sizeof(sockopt));
-
-        int res;
-
+        
         res = fcntl (fd_, F_GETFL, 0);
 
         if(res >= 0)
@@ -55,31 +55,43 @@ namespace skywire { namespace tcp {
             res |= O_NONBLOCK;
             res = fcntl (fd_, F_SETFL, res);
         }
-
+        
         if(res == -1)
         {
             log().error("fcntl: {}", strerror(errno));
+            close(fd_);
+            fd_ = -1;
+            freeaddrinfo(l_addr);
             return;
         }
 
-        if(fd_ > -1)
-        {
-            res = bind(fd_, (const struct sockaddr*)&dest_addr, sizeof(dest_addr));
-        }
+        res = bind(fd_, l_addr->ai_addr, l_addr->ai_addrlen);
+
+        freeaddrinfo(l_addr);
+
         if(fd_ > -1 && !res)
         {
             res = listen(fd_, SOMAXCONN);
             if(res < 0)
             {
                 log().error("Listen: {}", strerror(errno));
+                close(fd_);
+                fd_ = -1;
             }
         }
         else
         {
             log().error("Bind: {}", strerror(errno));
+            close(fd_);
+            fd_ = -1;
         }
     }
 
+    listener::~listener() {
+        if(fd_ > -1) {
+            close(fd_);
+        }
+    }
 
     int 
     listener::handle_events(uint32_t events)

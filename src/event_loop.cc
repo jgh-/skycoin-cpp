@@ -39,7 +39,7 @@ namespace skywire {
             sigset_t mask;
             sigemptyset(&mask);
             sigaddset(&mask, SIGINT); // graceful shutdown
-            sigaddset(&mask, SIGTERM); // immediate shutdown
+            //sigaddset(&mask, SIGTERM); // immediate shutdown
             int err = sigprocmask(SIG_BLOCK, &mask, NULL);
             if(err) {
                 log().critical("sigprocmask: {}", strerror(errno));
@@ -68,7 +68,7 @@ namespace skywire {
     void
     event_loop::register_handler(int fd, event_handler_f handler, int events)
     {
-        if(fd_epoll_ > -1) {
+        if(fd_epoll_ > -1 && fd > -1) {
             handlers_[fd] = handler;
             struct epoll_event event = {0};
             event.data.fd = fd;
@@ -124,6 +124,9 @@ namespace skywire {
                         if(si.ssi_signo == SIGINT) {
                             log().info("Got SIGINT, shutting down gracefully.");
                             exiting = 2;
+                            if(shutdown_handler_) {
+                                shutdown_handler_(*this);
+                            }
                         } else if(si.ssi_signo == SIGTERM) {
                             log().info("Got SIGTERM, shutting down immediately.");
                             exiting_ = 1;
@@ -143,7 +146,12 @@ namespace skywire {
                 exiting_ = 1;
             }
         }
+     
         free(events);
+
+        if(shutdown_handler_) {
+            shutdown_handler_(*this);
+        }
     }
 
     void

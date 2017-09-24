@@ -15,6 +15,9 @@
 
 namespace skywire {
 
+    class event_loop;
+    using shutdown_handler_f = std::function<void(event_loop&)>;
+
     class event_loop {
     public:
         event_loop(int max_events = 10240, bool handle_signals = true);
@@ -22,7 +25,10 @@ namespace skywire {
 
         void register_handler(int fd, event_handler_f handler, int events = EPOLLIN | EPOLLET | EPOLLOUT);
         void unregister_handler(int fd);
-        
+
+        // this may be called multiple times, so your handler should be idempotent.
+        void shutdown_handler(shutdown_handler_f handler) { shutdown_handler_ = handler; };
+
         // blocks.
         void run();
 
@@ -30,6 +36,7 @@ namespace skywire {
 
     private:
         std::unordered_map<int, event_handler_f> handlers_;
+        shutdown_handler_f shutdown_handler_;
         int fd_wakeup_;
         int fd_signal_;
         int fd_epoll_;

@@ -8,7 +8,7 @@ namespace skywire {
     using event_handler_f = std::function<int(int fd, uint32_t events)>;
     using register_handler_f = std::function<void(int, event_handler_f register_handler)>;
     using unregister_handler_f = std::function<void(int)>;
-
+    
     class event_handler {
     public:
         virtual ~event_handler() {};
