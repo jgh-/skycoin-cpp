@@ -1,5 +1,5 @@
-#ifndef skycoin__LOG_HH
-#define skycoin__LOG_HH
+#ifndef SKYCOIN__LOG_HH
+#define SKYCOIN__LOG_HH
 
 #include <spdlog/spdlog.h>
 

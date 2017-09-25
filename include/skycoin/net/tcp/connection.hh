@@ -1,6 +1,6 @@
 
-#ifndef skycoin__TCP_CONNECTION_HH
-#define skycoin__TCP_CONNECTION_HH
+#ifndef SKYCOIN__TCP_CONNECTION_HH
+#define SKYCOIN__TCP_CONNECTION_HH
 
 #include <skycoin/event_handler.hh>
 #include <string>

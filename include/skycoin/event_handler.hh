@@ -1,5 +1,5 @@
-#ifndef skycoin__EVENT_HANDLER_HH
-#define skycoin__EVENT_HANDLER_HH
+#ifndef SKYCOIN__EVENT_HANDLER_HH
+#define SKYCOIN__EVENT_HANDLER_HH
 
 #include <functional>
 

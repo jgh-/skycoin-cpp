@@ -1,5 +1,5 @@
-#ifndef skycoin__UDP_LISTENER_HH
-#define skycoin__UDP_LISTENER_HH
+#ifndef SKYCOIN__UDP_LISTENER_HH
+#define SKYCOIN__UDP_LISTENER_HH
 
 #include <skycoin/net/udp/connection.hh>
 #include <unpause/async>

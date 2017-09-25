@@ -1,5 +1,5 @@
-#ifndef skycoin__EVENTLOOP_HH
-#define skycoin__EVENTLOOP_HH
+#ifndef SKYCOIN__EVENTLOOP_HH
+#define SKYCOIN__EVENTLOOP_HH
 
 
 #include <skycoin/event_handler.hh>

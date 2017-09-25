@@ -1,6 +1,6 @@
 
-#ifndef skycoin__UDP_CONNECTION_HH
-#define skycoin__UDP_CONNECTION_HH
+#ifndef SKYCOIN__UDP_CONNECTION_HH
+#define SKYCOIN__UDP_CONNECTION_HH
 
 #include <skycoin/event_handler.hh>
 #include <string>

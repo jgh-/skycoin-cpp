@@ -1,5 +1,5 @@
-#ifndef skycoin__TCP_LISTENER_HH
-#define skycoin__TCP_LISTENER_HH
+#ifndef SKYCOIN__TCP_LISTENER_HH
+#define SKYCOIN__TCP_LISTENER_HH
 
 #include <skycoin/net/tcp/connection.hh>
 #include <unpause/async>
