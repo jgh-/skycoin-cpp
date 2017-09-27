@@ -129,6 +129,8 @@ namespace skycoin { namespace tcp {
     void
     listener::handle_new_connection(int fd) {
         std::unique_ptr<connection> c  = std::make_unique<connection>(fd);
+        c->set_can_read_handler(can_read_handler_);
+        c->set_can_write_handler(can_write_handler_);
         c->set_register_handler(register_handler_);
         c->set_unregister_handler(unregister_handler_);
         c->set_end_handler([this](i_connection* conn, int32_t error){

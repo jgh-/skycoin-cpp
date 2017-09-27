@@ -23,6 +23,34 @@ int main(int argc, char* argv[]) {
         e.unregister_handler(fd);
     });
 
+    skycoin::tcp::connection c("localhost", 2021);
+    c.set_can_read_handler([](skycoin::i_connection& conn){ 
+        uint8_t buf[1024] {};
+        ssize_t res =  conn.read(buf, sizeof(buf));
+        if(res > 0) {
+            skycoin::log().info("got {}", buf);
+            std::string f("fartington\n");
+
+            conn.write((uint8_t*)f.data(), f.size());
+        }
+        return res;
+    });
+
+    tcp.set_can_read_handler([](skycoin::i_connection& conn){ 
+        uint8_t buf[1024] {};
+        ssize_t res =  conn.read(buf, sizeof(buf));
+        if(res > 0) {
+            skycoin::log().info("got {}", buf);
+            std::string f("fartington\n");
+
+            conn.write((uint8_t*)f.data(), f.size());
+        }
+        return res;
+    });
+    
+    c.connect();
+    e.register_handler(c.fd(), c.handler());
+
     e.shutdown_handler([&tcp] (skycoin::event_loop& e) {
         e.unregister_handler(tcp.fd());
     });

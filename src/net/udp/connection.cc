@@ -116,7 +116,7 @@ namespace skycoin { namespace udp {
     connection::read_event(int fd)
     {
         int res = 0;
-
+        
         if(can_read_handler_) {
             res = can_read_handler_(*this);
         }

@@ -18,14 +18,19 @@ namespace skycoin { namespace tcp {
 
         int fd() const { return fd_; }
 
+        void set_can_read_handler(can_read_handler_f handler) { can_read_handler_ = handler; };
+        void set_can_write_handler(can_write_handler_f handler) { can_write_handler_ = handler; };
+
     protected:
         virtual int handle_events(uint32_t events);
         virtual void handle_new_connection(int fd);
 
     protected:
+        can_read_handler_f can_read_handler_;
+        can_write_handler_f can_write_handler_;
+        
         std::list<std::unique_ptr<connection>> connections_;
         std::string addr_;
-
         unpause::async::thread_pool& pool_;
 
         int fd_;

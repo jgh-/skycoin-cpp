@@ -10,27 +10,30 @@ namespace skycoin { namespace udp {
 
     class listener : public event_handler {
     public:
-        // temporarily have an out address,
-        // this will eventually be removed and we'll use more intelligent routing.
-        listener(std::string addr, int in_port, std::string out_addr, int out_port, unpause::async::thread_pool& pool);
+        listener(std::string addr, int port, unpause::async::thread_pool& pool);
         ~listener();
         
         event_handler_f handler() { return [this](int fd, uint32_t events) { return handle_events(events); }; }
 
         int fd() const { return fd_; }
 
-    private:
-        int handle_events(uint32_t events);
+        void set_can_read_handler(can_read_handler_f handler) { can_read_handler_ = handler; };
+        void set_can_write_handler(can_write_handler_f handler) { can_write_handler_ = handler; };
 
-    private:
+    protected:
+        virtual int handle_events(uint32_t events);
+        virtual void handle_new_connection(int fd);
+
+    protected:
+        can_read_handler_f can_read_handler_;
+        can_write_handler_f can_write_handler_;
+        
         std::list<std::unique_ptr<connection>> connections_;
-        std::string addr_in_;
-        std::string addr_out_;
+        std::string addr_;
         unpause::async::thread_pool& pool_;
 
         int fd_;
-        int port_in_;
-        int port_out_;
+        int port_;
 
     };
 

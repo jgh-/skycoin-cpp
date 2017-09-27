@@ -90,7 +90,9 @@ namespace skycoin { namespace tcp {
         if(fd_ > -1) {
             int flags = fcntl(fd_, F_GETFL, 0);
             res = fcntl(fd_, F_SETFL, flags | O_NONBLOCK);
-            register_handler_(fd_, [this](int fd, uint32_t events) { return handle_events(fd, events); });    
+            if(register_handler_) {
+                register_handler_(fd_, [this](int fd, uint32_t events) { return handle_events(fd, events); });
+            }
         }
 
         return res;
@@ -116,8 +118,13 @@ namespace skycoin { namespace tcp {
     {
         int res = 0;
 
-        if(can_read_handler_) {
+        uint8_t buffer[8] = {0};
+        ssize_t r = recv(fd_, buffer, sizeof(buffer), MSG_PEEK | MSG_DONTWAIT);
+
+        if(r > 0 && can_read_handler_) {
             res = can_read_handler_(*this);
+        } else if(!r) {
+            end_handler_(this, 0);
         }
 
         return res;

@@ -15,13 +15,11 @@
 
 namespace skycoin { namespace udp {
 
-    listener::listener(std::string in_addr, int in_port, std::string out_addr, int out_port, unpause::async::thread_pool& pool)
-    : addr_in_(in_addr)
-    , addr_out_(out_addr)
+    listener::listener(std::string addr, int port, unpause::async::thread_pool& pool)
+    : addr_(addr)
     , pool_(pool)
     , fd_(-1)
-    , port_in_(in_port)
-    , port_out_(out_port)
+    , port_(port)
     {
 
         struct addrinfo hints {};
@@ -31,9 +29,9 @@ namespace skycoin { namespace udp {
         hints.ai_socktype = SOCK_DGRAM;
         hints.ai_flags = AI_PASSIVE;
 
-        const char* host = in_addr == "*" ? nullptr : in_addr.c_str();
+        const char* host = addr_ == "*" ? nullptr : addr_.c_str();
 
-        int res = getaddrinfo(host, std::to_string(in_port).c_str(), &hints, &l_addr);
+        int res = getaddrinfo(host, std::to_string(port_).c_str(), &hints, &l_addr);
 
         if(res < 0) {
             log().error("getaddrinfo {}", gai_strerror(res));
@@ -43,7 +41,7 @@ namespace skycoin { namespace udp {
         fd_ = socket(l_addr->ai_family, l_addr->ai_socktype, l_addr->ai_protocol);
         if(fd_ < 0)
         {
-            log().error("Unable to open port {}: {}", in_port, strerror(errno));
+            log().error("Unable to open port {}: {}", port_, strerror(errno));
             freeaddrinfo(l_addr);
             return;
         }
