@@ -16,13 +16,11 @@
 
 namespace skycoin { namespace tcp {
 
-    listener::listener(std::string in_addr, int in_port, std::string out_addr, int out_port, unpause::async::thread_pool& pool) 
-    : addr_in_(in_addr)
-    , addr_out_(out_addr)
+    listener::listener(std::string in_addr, int in_port, unpause::async::thread_pool& pool) 
+    : addr_(in_addr)
     , pool_(pool)
     , fd_(-1)
-    , port_in_(in_port)
-    , port_out_(out_port)
+    , port_(in_port)
     {
         struct addrinfo hints {};
         struct addrinfo *l_addr = nullptr;
@@ -120,40 +118,36 @@ namespace skycoin { namespace tcp {
             else
             {
                 // new connection
-                log().info("New connection on port {} -> {}", port_in_, port_out_);
-
-                // 1. Check if we want to forward this connection on or if it is going to stay here.
-                
-                std::string addr = addr_out_;
-                int port = port_out_;
-
-                // 2. Create the connection.
-                {
-                    std::unique_ptr<connection> c  = std::make_unique<connection>(sd, addr, port);
-                    c->set_register_handler(register_handler_);
-                    c->set_unregister_handler(unregister_handler_);
-                    c->set_end_handler([this](connection* conn){
-                        unpause::async::run(pool_, 
-                            [this, conn] { 
-                                for(auto it = connections_.begin(); it != connections_.end(); ++it) {
-                                    if(it->get() == conn) {
-                                        connections_.erase(it);
-                                        break;
-                                    }
-                                }
-                            });
-                    });
-
-                    if(!c->connect()) {
-                        connections_.push_back(std::move(c));
-                    } else {
-                        log().error("Couldn't connect, dropping connection");
-                    }
-                }
+                log().info("New connection on port {}", port_);
+                handle_new_connection(sd);
             }
         }
 
         return res;
+    }
+
+    void
+    listener::handle_new_connection(int fd) {
+        std::unique_ptr<connection> c  = std::make_unique<connection>(fd);
+        c->set_register_handler(register_handler_);
+        c->set_unregister_handler(unregister_handler_);
+        c->set_end_handler([this](i_connection* conn, int32_t error){
+            unpause::async::run(pool_, 
+                [this, conn] { 
+                    for(auto it = connections_.begin(); it != connections_.end(); ++it) {
+                        if(it->get() == conn) {
+                            connections_.erase(it);
+                            break;
+                        }
+                    }
+                });
+        });
+
+        if(!c->connect()) {
+            connections_.push_back(std::move(c));
+        } else {
+            log().error("Couldn't connect, dropping connection");
+        }
     }
 }
 }

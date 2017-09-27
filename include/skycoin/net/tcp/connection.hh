@@ -2,42 +2,38 @@
 #ifndef SKYCOIN__TCP_CONNECTION_HH
 #define SKYCOIN__TCP_CONNECTION_HH
 
-#include <skycoin/event_handler.hh>
+#include <skycoin/net/connection.hh>
 #include <string>
 
 namespace skycoin { namespace tcp {
 
-    class connection;
-
-    using end_handler_f = std::function<void(connection*)>;
-
-    class connection : public event_handler
+    class connection : public i_connection
     {
     public:
 
-        connection(int fd, std::string local_addr, int local_port);
+        connection(int fd);
+        connection(std::string addr, int port);
         ~connection();
 
         event_handler_f handler() { return [this](int fd, uint32_t events) {
             return handle_events(fd, events);
         }; };
 
-        int fd() const { return fd_in_; }
-        int connect();
-        void set_end_handler(end_handler_f handler) { end_handler_ = handler; };
+        virtual int fd() const { return fd_; }
+        virtual int connect();
+        virtual ssize_t read(uint8_t* buf, size_t size);
+        virtual ssize_t write(uint8_t* buf, size_t size);
 
-    private:
-        int handle_events(int fd, uint32_t events);
+    protected:
+        virtual int read_event(int fd);
+        virtual int write_event(int fd);
+        virtual int handle_events(int fd, uint32_t events);
         
-    private:
-        end_handler_f end_handler_;
-        std::string addr_out_;
-        int fd_pipe_[4];
-        unsigned int pipe_size_[2];
-        int pipe_max_size_;
-        int port_out_;
-        int fd_in_;
-        int fd_out_;
+    protected:
+        
+        std::string addr_;
+        int port_;
+        int fd_;
     };  
 }
 }
