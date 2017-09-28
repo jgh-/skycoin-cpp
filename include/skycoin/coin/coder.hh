@@ -1,5 +1,5 @@
-#ifndef SKYCOIN__NET_CODER
-#define SKYCOIN__NET_CODER
+#ifndef SKYCOIN__COIN_CODER
+#define SKYCOIN__COIN_CODER
 
 #include <experimental/optional>
 #include <string>
@@ -10,7 +10,7 @@
 
 // This codec seems to be based on golang's encoding/binary
 
-namespace skycoin { namespace coder {
+namespace skycoin { namespace coin {
 
     namespace stx = std::experimental;
 

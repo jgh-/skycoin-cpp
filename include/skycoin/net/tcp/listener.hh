@@ -2,13 +2,15 @@
 #define SKYCOIN__TCP_LISTENER_HH
 
 #include <skycoin/net/tcp/connection.hh>
+#include <skycoin/net/listener.hh>
+
 #include <unpause/async>
 #include <memory>
 #include <list>
 
 namespace skycoin { namespace tcp {
 
-    class listener : public event_handler {
+    class listener : public i_listener {
     public:
         
         listener(std::string addr, int port, unpause::async::thread_pool& pool);
@@ -16,19 +18,19 @@ namespace skycoin { namespace tcp {
         
         event_handler_f handler() { return [this](int fd, uint32_t events) { return handle_events(events); }; }
 
-        int fd() const { return fd_; }
+        virtual int fd() const { return fd_; }
+        virtual i_connection* connection_for_fd(int fd) {
+            for(auto& it : connections_) {
 
-        void set_can_read_handler(can_read_handler_f handler) { can_read_handler_ = handler; };
-        void set_can_write_handler(can_write_handler_f handler) { can_write_handler_ = handler; };
+            }
+            return nullptr;
+        };
 
     protected:
         virtual int handle_events(uint32_t events);
         virtual void handle_new_connection(int fd);
 
     protected:
-        can_read_handler_f can_read_handler_;
-        can_write_handler_f can_write_handler_;
-        
         std::list<std::unique_ptr<connection>> connections_;
         std::string addr_;
         unpause::async::thread_pool& pool_;
