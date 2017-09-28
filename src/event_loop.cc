@@ -125,7 +125,7 @@ namespace skycoin {
                             log().info("Got SIGINT, shutting down gracefully.");
                             exiting = 2;
                             if(shutdown_handler_) {
-                                shutdown_handler_(*this);
+                                shutdown_handler_(*this, true);
                             }
                         } else if(si.ssi_signo == SIGTERM) {
                             log().info("Got SIGTERM, shutting down immediately.");
@@ -150,7 +150,7 @@ namespace skycoin {
         free(events);
 
         if(shutdown_handler_) {
-            shutdown_handler_(*this);
+            shutdown_handler_(*this, false);
         }
     }
 

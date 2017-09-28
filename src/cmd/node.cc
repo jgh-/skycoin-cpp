@@ -1,61 +1,66 @@
-#include <skycoin/net/tcp/listener.hh>
-#include <skycoin/net/udp/listener.hh>
+#include <skycoin/coin/client.hh>
 #include <skycoin/event_loop.hh>
 #include <skycoin/log.hh>
 
+#include <json/json.hpp>
 #include <unpause/async>
+
+#include <fstream>
+
+#define VERSION "0.1"
+
+
+using json = nlohmann::json;
+
+void print_usage() {
+    printf("SkyCoin Node " VERSION "\n");
+    printf("\nUsage:\n\tnode -c [config_file]\t specify location for configuration.\n\n");
+}
 
 int main(int argc, char* argv[]) {
 
-    skycoin::log().info("skycoin node (c++) 0.1");
+    skycoin::log().info("skycoin node (c++) {}", VERSION);
+
+    std::string config_file;
+    char cmd = 0;
+    while ((cmd = getopt (argc, argv, "c:")) != -1)
+    {
+        switch (cmd)
+        {
+            case 'c':
+                config_file = std::string(optarg);
+                break;
+            case '?':
+                print_usage();
+                exit(1);
+                break;
+            default:
+                abort();
+                break;
+        }
+    }
+    if(config_file.size() == 0) {
+        print_usage();
+        exit(1);
+    }
+    json config;
+
+    {
+        std::ifstream in(config_file);
+        in >> config;
+    }
 
     skycoin::event_loop e; // instantiate before thread pool so children take signal mask
 
     unpause::async::thread_pool pool(std::thread::hardware_concurrency() * 2);
 
-    skycoin::tcp::listener tcp("*", 2020, pool);
+    skycoin::coin::client coin_client(e, pool, config["coin"].dump());
 
-    tcp.set_register_handler([&e](int fd, skycoin::event_handler_f handler) {
-        e.register_handler(fd, handler);
+    coin_client.start();
+
+    e.shutdown_handler([&coin_client](skycoin::event_loop& e, bool graceful) {
+        coin_client.stop(graceful);
     });
-
-    tcp.set_unregister_handler([&e](int fd) {
-        e.unregister_handler(fd);
-    });
-
-    skycoin::tcp::connection c("localhost", 2021);
-    c.set_can_read_handler([](skycoin::i_connection& conn){ 
-        uint8_t buf[1024] {};
-        ssize_t res =  conn.read(buf, sizeof(buf));
-        if(res > 0) {
-            skycoin::log().info("got {}", buf);
-            std::string f("fartington\n");
-
-            conn.write((uint8_t*)f.data(), f.size());
-        }
-        return res;
-    });
-
-    tcp.set_can_read_handler([](skycoin::i_connection& conn){ 
-        uint8_t buf[1024] {};
-        ssize_t res =  conn.read(buf, sizeof(buf));
-        if(res > 0) {
-            skycoin::log().info("got {}", buf);
-            std::string f("fartington\n");
-
-            conn.write((uint8_t*)f.data(), f.size());
-        }
-        return res;
-    });
-    
-    c.connect();
-    e.register_handler(c.fd(), c.handler());
-
-    e.shutdown_handler([&tcp] (skycoin::event_loop& e) {
-        e.unregister_handler(tcp.fd());
-    });
-    
-    e.register_handler(tcp.fd(), tcp.handler());
 
     // Start our main event loop, this will block until 
     // the program receives a SIGINT (CTRL+C), which will

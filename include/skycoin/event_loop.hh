@@ -16,7 +16,7 @@
 namespace skycoin {
 
     class event_loop;
-    using shutdown_handler_f = std::function<void(event_loop&)>;
+    using shutdown_handler_f = std::function<void(event_loop&, bool graceful)>;
 
     class event_loop {
     public:

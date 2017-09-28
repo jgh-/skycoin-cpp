@@ -5,7 +5,7 @@ set(CMAKE_BUILD_TYPE Debug)
 include_directories(include cpp_modules/include)
 link_directories(cpp_modules/lib)
 
-file(GLOB SOURCES "src/*.cc" "src/net/tcp/*.cc" "src/net/udp/*.cc")
+file(GLOB SOURCES "src/*.cc" "src/net/tcp/*.cc" "src/net/udp/*.cc" "src/coin/*.cc")
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wpedantic -Werror -pthread")
 

@@ -21,6 +21,7 @@ namespace skycoin {
         void set_can_read_handler(can_read_handler_f handler) { can_read_handler_ = handler; };
         void set_can_write_handler(can_write_handler_f handler) { can_write_handler_ = handler; };
         void set_end_handler(end_handler_f handler) { end_handler_ = handler; };
+        
     protected:
         end_handler_f           end_handler_;
         can_read_handler_f      can_read_handler_;

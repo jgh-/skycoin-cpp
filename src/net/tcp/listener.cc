@@ -134,6 +134,9 @@ namespace skycoin { namespace tcp {
         c->set_register_handler(register_handler_);
         c->set_unregister_handler(unregister_handler_);
         c->set_end_handler([this](i_connection* conn, int32_t error){
+            if(end_handler_) {
+                end_handler_(conn, error);
+            }
             unpause::async::run(pool_, 
                 [this, conn] { 
                     for(auto it = connections_.begin(); it != connections_.end(); ++it) {
@@ -146,6 +149,9 @@ namespace skycoin { namespace tcp {
         });
 
         if(!c->connect()) {
+            if(new_connection_handler_) {
+                new_connection_handler_(*c);
+            }
             connections_.push_back(std::move(c));
         } else {
             log().error("Couldn't connect, dropping connection");

@@ -20,10 +20,13 @@ namespace skycoin { namespace tcp {
 
         virtual int fd() const { return fd_; }
         virtual i_connection* connection_for_fd(int fd) {
+            i_connection* res = nullptr;
             for(auto& it : connections_) {
-
+                if(it->fd() == fd) {
+                    res = it.get();
+                }
             }
-            return nullptr;
+            return res;
         };
 
     protected:
