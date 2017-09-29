@@ -98,7 +98,7 @@ namespace skycoin { namespace udp {
                 res = -1;
             }
         }
-        return 0;
+        return res;
     }
 }
 }

@@ -94,7 +94,7 @@ namespace skycoin { namespace tcp {
     int 
     listener::handle_events(uint32_t events)
     {        
-        int res = -1 * ((events & EPOLLERR) || (events & EPOLLHUP));
+        int res = -EWOULDBLOCK * ((events & EPOLLERR) || (events & EPOLLHUP));
 
         struct sockaddr addr = {0};
         socklen_t len = 0;
@@ -107,12 +107,13 @@ namespace skycoin { namespace tcp {
             {
                 if(errno == EWOULDBLOCK)
                 {
+                    res = -EWOULDBLOCK;
                     break;
                 }
                 else
                 {
                     log().error("Accept: {}", strerror(errno));
-                    res = -1;
+                    res = -errno;
                 }
             }
             else

@@ -100,7 +100,7 @@ namespace skycoin { namespace udp {
     int
     connection::handle_events(int fd, uint32_t events)
     {
-        int res = 0;
+        int res = -EWOULDBLOCK;
 
         if(events & EPOLLIN) {
             res = read_event(fd);
@@ -115,7 +115,7 @@ namespace skycoin { namespace udp {
     int
     connection::read_event(int fd)
     {
-        int res = 0;
+        int res = -EWOULDBLOCK;
         
         if(can_read_handler_) {
             res = can_read_handler_(*this);
@@ -127,7 +127,7 @@ namespace skycoin { namespace udp {
     int
     connection::write_event(int fd)
     {
-        int res = 0;
+        int res = -EWOULDBLOCK;
 
         if(can_write_handler_) {
             res = can_write_handler_(*this);

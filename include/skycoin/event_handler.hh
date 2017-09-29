@@ -6,7 +6,8 @@
 namespace skycoin {
 
     // event_handler_f should return 0 if this handler is finished
-    // Otherwise return a positive number for success or negative number for failure
+    // Otherwise return a positive number for success or negative number for failure.
+    // Handlers should return -EWOULDBLOCK to indicate no data.
     using event_handler_f = std::function<int(int fd, uint32_t events)>;
     using register_handler_f = std::function<void(int, event_handler_f)>;
     using unregister_handler_f = std::function<void(int)>;

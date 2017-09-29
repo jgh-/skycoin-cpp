@@ -1,8 +1,28 @@
 #include <skycoin/net/tcp/listener.hh>
+#include <skycoin/coin/message.hh>
 #include <skycoin/coin/client.hh>
 #include <skycoin/uri.hh>
 #include <skycoin/log.hh>
 
+/*
+ *  SkyCoin base protocol. This is not SkyWire, which is a different transport.  This protocol
+ *  can theoretically run over SkyWire.
+ *
+ *  Basic connection flow:
+ *
+ *   LocalPeer ------> RemotePeer
+ *   LP ---> INTR ---> RP
+ *   LP <--- INTR <--- RP
+ *   LP ---> GETB ---> RP
+ *   LP <--- GIVB <--- RP
+ *   LP ---> ANNB ---> RP
+ *   LP ---> GETB ---> RP // No response since there are no new blocks
+ *   LP <--- PING <--- RP
+ *   LP ---> PONG ---> RP
+ *   LP <--- GETP <--- RP
+ *   LP ---> GIVP ---> RP
+ *      ...
+ */
 namespace skycoin { namespace coin {
 
     client::client(event_loop& el, unpause::async::thread_pool& pool, std::string configuration)

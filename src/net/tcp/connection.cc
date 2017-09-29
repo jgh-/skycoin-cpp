@@ -101,7 +101,7 @@ namespace skycoin { namespace tcp {
     int
     connection::handle_events(int fd, uint32_t events)
     {
-        int res = -1;
+        int res = -EWOULDBLOCK;
 
         if(events & EPOLLIN) {
             res = read_event(fd);
@@ -133,7 +133,7 @@ namespace skycoin { namespace tcp {
     int
     connection::write_event(int fd)
     {
-        int res = 0;
+        int res = -EWOULDBLOCK; // write shouldn't trigger end.
 
         if(can_write_handler_) {
             res = can_write_handler_(*this);
