@@ -16,4 +16,4 @@ cd build
 cmake ..
 make
 ```
-3. This will emit `libskywire.a` which can be used for other projects, and various executables.
+3. This will emit `libskycoin.a` which can be used for other projects, and various executables.

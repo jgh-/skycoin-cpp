@@ -97,7 +97,7 @@ namespace skycoin {
     void
     event_loop::run()
     {
-        exiting_ = false;
+        exiting_ = 0;
 
         struct epoll_event* events = nullptr;
 
@@ -106,12 +106,10 @@ namespace skycoin {
             log().critical("Couldn't allocate events!");
             exit(-1);
         }
-        int exiting = 0;
-        while((exiting = exiting_.load()) != 1) {
+        while(exiting_.load() != 1) {
             int res = epoll_wait(fd_epoll_, events, max_events_, -1);
-            exiting = exiting_.load();
             if(res > 0) {
-                for( int i = 0 ; i < res && exiting != 1 ; ++i ) {
+                for( int i = 0 ; i < res && exiting_.load() != 1 ; ++i ) {
                     if(events[i].data.fd == fd_wakeup_) {
                         // Wakeup
                         eventfd_t val;
@@ -122,27 +120,30 @@ namespace skycoin {
                         struct signalfd_siginfo si;
                         read(fd_signal_, &si, sizeof(si));
                         if(si.ssi_signo == SIGINT) {
-                            log().info("Got SIGINT, shutting down gracefully.");
-                            exiting = 2;
+                            log().info("Got SIGINT, shutting down after all event handlers have ended.");
+                            exiting_ = 2;
                             if(shutdown_handler_) {
                                 shutdown_handler_(*this, true);
                             }
                         } else if(si.ssi_signo == SIGTERM) {
                             log().info("Got SIGTERM, shutting down immediately.");
                             exiting_ = 1;
-                            exiting = 1;
                         }
                     }
                     else {
                         auto it = handlers_.find(events[i].data.fd);
                         if(it != handlers_.end()) {
                             // found the handler, let's do it.
-                            (*it).second(events[i].data.fd, events[i].events);
+                            auto res = (*it).second(events[i].data.fd, events[i].events);
+                            if(!res) {
+                                // got 0, this handler is done.
+                                handlers_.erase(it);
+                            }
                         }
                     }
                 }    
             }
-            if(handlers_.size() == 0 && exiting == 2) {
+            if(handlers_.size() == 0 && exiting_.load() == 2) {
                 exiting_ = 1;
             }
         }

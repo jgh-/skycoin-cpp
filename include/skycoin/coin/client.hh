@@ -13,8 +13,7 @@ namespace skycoin { namespace coin {
     class client {
     public:
 
-        client(event_loop& el, unpause::async::thread_pool& pool, std::string configuration);
-        ~client() {};
+        client(event_loop& el, unpause::async::thread_pool& pool, std::string configuration); 
 
         // Returns 0 if no error.
         int start();
@@ -25,8 +24,10 @@ namespace skycoin { namespace coin {
         
     private:
         nlohmann::json config_;
-        event_loop& event_loop_;
+        unpause::async::task_queue   queue_;
         unpause::async::thread_pool& pool_;
+        event_loop& event_loop_;
+
         std::unique_ptr<i_listener> listener_;
     };
 }

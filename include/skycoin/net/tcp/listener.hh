@@ -18,6 +18,15 @@ namespace skycoin { namespace tcp {
         
         event_handler_f handler() { return [this](int fd, uint32_t events) { return handle_events(events); }; }
 
+        virtual void close(int fd) { 
+            for(auto it = connections_.begin(); it != connections_.end();) {
+                if((*it)->fd() == fd) {
+                    it = connections_.erase(it);
+                } else {
+                    ++it;
+                }
+            }
+        };
         virtual int fd() const { return fd_; }
         virtual i_connection* connection_for_fd(int fd) {
             i_connection* res = nullptr;

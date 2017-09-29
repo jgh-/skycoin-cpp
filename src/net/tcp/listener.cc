@@ -134,11 +134,12 @@ namespace skycoin { namespace tcp {
         c->set_register_handler(register_handler_);
         c->set_unregister_handler(unregister_handler_);
         c->set_end_handler([this](i_connection* conn, int32_t error){
-            if(end_handler_) {
-                end_handler_(conn, error);
-            }
+
             unpause::async::run(pool_, 
-                [this, conn] { 
+                [this, conn, error] { 
+                    if(end_handler_) {
+                        end_handler_(conn, error);
+                    }
                     for(auto it = connections_.begin(); it != connections_.end(); ++it) {
                         if(it->get() == conn) {
                             connections_.erase(it);

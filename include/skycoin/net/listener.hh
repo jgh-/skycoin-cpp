@@ -29,6 +29,7 @@ namespace skycoin {
         void set_new_connection_handler(new_connection_handler_f handler) { new_connection_handler_ = handler; };
         void set_end_handler(end_handler_f handler) { end_handler_ = handler; };
         
+        virtual void close(int fd) = 0;
         virtual int fd() const = 0;
         virtual i_connection* connection_for_fd(int fd) = 0;
         

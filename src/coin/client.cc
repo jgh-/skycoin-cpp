@@ -7,11 +7,10 @@ namespace skycoin { namespace coin {
 
     client::client(event_loop& el, unpause::async::thread_pool& pool, std::string configuration)
     : config_(nlohmann::json::parse(configuration))
-    , event_loop_(el)
     , pool_(pool)
-    {
-    }
+    , event_loop_(el) {}
 
+    
     int
     client::start()
     {
@@ -20,10 +19,20 @@ namespace skycoin { namespace coin {
         // start listener
         {
             uri listener_uri(config_.at("listener").get<std::string>());
+
+            // Create the listener based on the URI.  Choose the
+            // correct one based on uri scheme.
+            // Note: Currently skycoin only seems to support TCP, though Skywire is a UDP-based protocol so
+            //       I will implement that as Skywire's protocol is built out.
             if(listener_uri.scheme == "tcp") {
                 listener_ = std::make_unique<tcp::listener>(listener_uri.host, listener_uri.port, pool_);
             }
 
+
+            // 
+            // Here we have our listener, and we want to set our connection callbacks with the listener
+            // which will own incoming connections.  We will own any outgoing connections we want to create.
+            // 
             if(listener_) {
                 listener_->set_register_handler([this](int fd, skycoin::event_handler_f handler) {
                     this->event_loop_.register_handler(fd, handler);
@@ -40,20 +49,32 @@ namespace skycoin { namespace coin {
                 listener_->set_can_read_handler([this](i_connection& c) {
                     uint8_t buf[1024]{};
                     auto res = c.read(buf, sizeof(buf));
-                    log().info("size: {} ", res);
+                    log().info("got some stuff: {} ", buf);
                     return res;
+                });
+                
+                listener_->set_can_write_handler([this](i_connection& c) {
+                    return -1;
                 });
 
                 listener_->set_end_handler([this](i_connection* c, int32_t error) {
-                    if(c) {
-                        event_loop_.unregister_handler(c->fd());
-                    }
+
                 });
 
                 event_loop_.register_handler(listener_->fd(), listener_->handler());
             }
         }
 
+
+        // Configure blockchain
+        {
+
+        }
+
+        // Connect to default peers
+        {
+
+        }
         return res;
     }
     int

@@ -101,7 +101,7 @@ namespace skycoin { namespace tcp {
     int
     connection::handle_events(int fd, uint32_t events)
     {
-        int res = 0;
+        int res = -1;
 
         if(events & EPOLLIN) {
             res = read_event(fd);
