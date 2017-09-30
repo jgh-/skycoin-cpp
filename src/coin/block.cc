@@ -34,6 +34,7 @@ namespace skycoin { namespace coin {
         uint32_t tx_outputs = 0;
         d.safe_get(tx_outputs);
 
+        log().info("outputs={}", tx_outputs);
         for(uint32_t i = 0 ; i < tx_outputs; i++) {
             transaction_output to;
             d.safe_get(to.address);
@@ -56,6 +57,7 @@ namespace skycoin { namespace coin {
     block::deserialize(uint8_t* data, size_t size) {
         decoder d(data, size);
 
+        log().info("size={}", size);
         d.safe_get(version);
         d.safe_get(time);
         d.safe_get(sequence);
@@ -63,10 +65,10 @@ namespace skycoin { namespace coin {
         d.safe_get(prev_hash);
         d.safe_get(body_hash);
         d.safe_get(unspent_hash);
-
+        log().info("sequence={}", sequence);
         uint32_t tx_count = 0;
         d.safe_get(tx_count);
-
+        log().info("tx_count={}", tx_count);
         for(uint32_t i = 0 ; i < tx_count; i++) {
             transaction t;
             auto res = t.deserialize(d.p(), d.remain());
@@ -79,7 +81,29 @@ namespace skycoin { namespace coin {
                 break;
             }
         }
+        d.safe_get(signature);
+        
+        return d.p() - data;
+    }
 
+    size_t
+    get_blocks(uint8_t* data, size_t size, std::vector<block>& out_blocks) {
+        decoder d(data, size);
+        
+        uint32_t count = 0;
+        d.safe_get(count);
+
+        log().info("count={}", count);
+        for(uint32_t i = 0 ; i < count ; i++) {
+            block b;
+            auto res = b.deserialize(d.p(), d.remain());
+            if(res > 0) {
+                d.advance(res);
+                out_blocks.emplace_back(std::move(b));
+            } else { 
+                break;
+            }
+        }
         return d.p() - data;
     }
 }

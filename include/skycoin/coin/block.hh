@@ -56,7 +56,9 @@ In base 58 format the address is 20+1+4 bytes
 
         size_t serialize(std::vector<uint8_t>& data);
         size_t deserialize(uint8_t* data, size_t size);
-        
+
+        signature_t signature;
+                
         sha256_t prev_hash;
         sha256_t body_hash;
         sha256_t unspent_hash;
@@ -70,7 +72,7 @@ In base 58 format the address is 20+1+4 bytes
         std::vector<transaction> transactions;
     };
 
-    std::vector<block> get_blocks(uint8_t* p, size_t size);
+    size_t get_blocks(uint8_t* data, size_t size,  std::vector<block>& out_blocks);
 }
 }
 

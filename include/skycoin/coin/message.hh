@@ -2,6 +2,7 @@
 #define SKYCOIN__COIN_MESSAGE_HH
 
 #include <skycoin/coin/block.hh>
+#include <skycoin/log.hh>
 
 #include <string>
 #include <memory>
@@ -67,8 +68,8 @@ namespace skycoin { namespace coin {
 
     struct message_base 
     {
-        virtual size_t deserialize(uint8_t* data, size_t size) {
-            if(size>=8) {
+        virtual size_t deserialize(uint8_t* data, size_t len) {
+            if(len>=8) {
                 size = *(uint32_t*)data;
                 name = *(uint32_t*)data+4;
                 return 8;
@@ -127,7 +128,16 @@ namespace skycoin { namespace coin {
     template<>
     struct message<MsgGiveBlocks> : public message_base
     {
-        
+        size_t deserialize(uint8_t* data, size_t len) {
+            size_t res = message_base::deserialize(data, len);
+            log().info("res={}", res);
+            if( res > 0 ) {
+                res += get_blocks(data+res, len-res, blocks);
+                log().info("res={}", res);
+            }
+            return res;
+        }
+        std::vector<block> blocks;
     };
 
     //
@@ -145,6 +155,8 @@ namespace skycoin { namespace coin {
         std::unique_ptr<message_base> res;
         switch(name()) {
             CASE_4CC("INTR");
+            CASE_4CC("GIVB");
+            CASE_4CC("GETB");
         }
         return res;
     }
