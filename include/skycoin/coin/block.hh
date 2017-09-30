@@ -6,29 +6,39 @@
 
 namespace skycoin { namespace coin {
 
-    using sha256_t = std::array<uint32_t, 32>;
-    using signature_t = std::array<uint32_t, 65>;
+    using sha256_t = std::array<uint8_t, 32>;
+    using signature_t = std::array<uint8_t, 65>;
+  
 
-#pragma pack(push, 1)
-    union address_t 
-    { 
-        uint8_t data[25]; // 1-byte Version, 20-byte key, 4-byte checksum
-        struct {
-            uint8_t version;
-            uint8_t key[20];
-            uint32_t checksum;
-        } parts;
-    };
-#pragma pack(pop)
+  // From the golang code:
 
-    struct transaction_output {
-        address_t address;
-        uint64_t  coins;
-        uint64_t  hours;
-    };
+/*
+Addresses are the Ripemd160 of the double SHA256 of the public key
+- public key must be in compressed format
+
+In the block chain the address is 20+1 bytes
+- the first byte is the version byte
+- the next twenty bytes are RIPMD160(SHA256(SHA256(pubkey)))
+
+In base 58 format the address is 20+1+4 bytes
+- the first 20 bytes are RIPMD160(SHA256(SHA256(pubkey))).
+-- this is to allow for any prefix in vanity addresses
+- the next byte is the version byte
+- the next 4 bytes are a checksum
+-- the first 4 bytes of the SHA256 of the 21 bytes that come before
+
+*/
+    using address_t = std::array<uint8_t, 21>; // 1-byte Version, 20-byte key.
+
 
     struct transaction {
         
+        struct transaction_output {
+            address_t address;
+            uint64_t  coins;
+            uint64_t  hours;
+        };
+
         size_t serialize(std::vector<uint8_t>& data);
         size_t deserialize(uint8_t* data, size_t size);
         
@@ -36,7 +46,7 @@ namespace skycoin { namespace coin {
         
         std::vector<signature_t> signatures;
         std::vector<sha256_t> outputs_spent;
-        std::vector<transaction_output> outputs_created;
+        std::vector<transaction_output> outputs;
 
         uint32_t length;
         uint8_t  type;
@@ -60,6 +70,7 @@ namespace skycoin { namespace coin {
         std::vector<transaction> transactions;
     };
 
+    std::vector<block> get_blocks(uint8_t* p, size_t size);
 }
 }
 

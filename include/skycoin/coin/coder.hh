@@ -67,6 +67,32 @@ namespace skycoin { namespace coin {
                 return res;
             }
         };
+
+        template<typename T>
+        struct get<std::vector<T>> {
+            stx::optional<std::vector<T>> operator()(uint8_t** p, const size_t remain) {
+                stx::optional<std::vector<T>> res;
+                uint32_t count = 0;
+                size_t size = remain;
+                auto ct = get<uint32_t>()(p, size);
+                if(ct) {
+                    count = *ct;
+                    size -= 4;
+                    res.emplace();
+                    for(uint32_t i = 0; i < count; i++) {
+                        auto val = get<T>()(p, size);
+                        if(val) {
+                            size -= sizeof(T);
+                            res->push_back(std::move(*val));
+                        } else {
+                            // error;
+                            break;
+                        }
+                    }
+                }
+                return res;
+            }
+        };
         
 
         template<typename T>
@@ -100,17 +126,18 @@ namespace skycoin { namespace coin {
         stx::optional<T> get() { return detail::get<T>()(&p_, size_ - (p_ - base_)); }
 
         template<typename T>
-        void safe_get(T& val) {
+        bool safe_get(T& val) {
             auto res = get<T>();
             if(res) {
                 val = *res;
             }
+            return !!res;
         }
         
         bool done() const { return (p_ - base_) >= static_cast<intptr_t>(size_); }
         size_t remain() const { return size_ - (p_ - base_); };
         uint8_t* p() const { return p_; };
-        
+        void advance(size_t size) { p_ += size; };
     private:
         uint8_t* base_;
         uint8_t* p_;

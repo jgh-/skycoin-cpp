@@ -12,3 +12,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -Wpedantic -Werror -pth
 add_library(skycoin STATIC ${SOURCES})
 add_executable(node "src/cmd/node.cc")
 target_link_libraries(node skycoin)
+
+add_executable(test_block "test/test_block.cc")
+target_link_libraries(test_block skycoin)

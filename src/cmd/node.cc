@@ -6,9 +6,9 @@
 #include <unpause/async>
 
 #include <fstream>
+#include <stdio.h>
 
 #define VERSION "0.1"
-
 
 using json = nlohmann::json;
 
