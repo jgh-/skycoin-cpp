@@ -94,25 +94,43 @@ namespace skycoin { namespace coin {
             }
         };
         
+        template<typename T>
+        struct set {
+            size_t operator()(T& val, std::vector<uint8_t>& buffer) {
+                buffer.insert(buffer.end(), reinterpret_cast<uint8_t*>(&val), reinterpret_cast<uint8_t*>(&val)+sizeof(T));
+                return sizeof(T);
+            }
+        };
+
+        template<>
+        struct set<std::string> {
+            size_t operator()(std::string& val, std::vector<uint8_t>& buffer) {
+                uint32_t len(val.size());
+                size_t res = set<uint32_t>()(len, buffer);
+                buffer.insert(buffer.end(), val.begin(), val.end());
+                return res + len;
+            }
+        };
+
+        template<typename T, size_t S>
+        struct set<std::array<T, S>> {
+            size_t operator()(std::array<T, S>& val, std::vector<uint8_t>& buffer) {
+                buffer.insert(buffer.end(), reinterpret_cast<uint8_t*>(&val[0]), reinterpret_cast<uint8_t*>(&val[0])+(S*sizeof(T)));
+                return S*sizeof(T);
+            }
+        };
 
         template<typename T>
-        void set(T& val, std::vector<uint8_t>& buffer) {
-            buffer.insert(buffer.end(), reinterpret_cast<uint8_t*>(&val), reinterpret_cast<uint8_t*>(&val)+sizeof(T));
-        }
-
-        template<>
-        void set(std::string& val, std::vector<uint8_t>& buffer) {
-            uint32_t len(val.size());
-            set(len, buffer);
-            buffer.insert(buffer.end(), val.begin(), val.end());
-        }
-
-        template<>
-        void set(std::vector<uint8_t>& val, std::vector<uint8_t>& buffer) {
-            uint32_t len(val.size());
-            set(len, buffer);
-            buffer.insert(buffer.end(), val.begin(), val.end());
-        }
+        struct set<std::vector<T>> {
+            size_t operator()(std::vector<T>& val, std::vector<uint8_t>& buffer) {
+                uint32_t count(val.size());
+                size_t res = set<uint32_t>()(count, buffer);
+                for(auto& it : val) {
+                    res += set<T>()(it, buffer);
+                }
+                return res;
+            }
+        };
     }
 
     class decoder {
@@ -146,16 +164,16 @@ namespace skycoin { namespace coin {
 
     class encoder {
     public:
-        encoder() {};
+        encoder(std::vector<uint8_t>& data) : data_(data) {};
 
         template<typename T>
-        void set(T& val) { detail::set(val, data_); }
+        size_t set(T& val) { return detail::set<T>()(val, data_); }
 
         const uint8_t* data() const { return data_.data(); }
         const size_t size() const { return data_.size(); }
 
     private:
-        std::vector<uint8_t> data_;
+        std::vector<uint8_t>& data_;
     };
 }
 }

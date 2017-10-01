@@ -70,8 +70,8 @@ namespace skycoin { namespace coin {
     {
         virtual size_t deserialize(uint8_t* data, size_t len) {
             if(len>=8) {
-                size = *(uint32_t*)data;
-                name = *(uint32_t*)data+4;
+                size = *reinterpret_cast<uint32_t*>(data);
+                name = *reinterpret_cast<uint32_t*>(data+4);
                 return 8;
             }
             return 0;
@@ -100,9 +100,9 @@ namespace skycoin { namespace coin {
         size_t deserialize(uint8_t* data, size_t size) {
             size_t res = message_base::deserialize(data, size);
             if(size - res >= 10) {
-                mirror = *(uint32_t*)data+res;
-                port = *(uint16_t*)data+res+4;
-                version = *(uint16_t*)data+res+6;
+                mirror = *reinterpret_cast<uint32_t*>(data+res);
+                port = *reinterpret_cast<uint16_t*>(data+res+4);
+                version = *reinterpret_cast<uint16_t*>(data+res+6);
                 res += 10;
             }
             return res;
@@ -130,11 +130,20 @@ namespace skycoin { namespace coin {
     {
         size_t deserialize(uint8_t* data, size_t len) {
             size_t res = message_base::deserialize(data, len);
-            log().info("res={}", res);
             if( res > 0 ) {
                 res += get_blocks(data+res, len-res, blocks);
-                log().info("res={}", res);
             }
+
+            return res;
+        }
+        size_t serialize(std::vector<uint8_t>& data) {
+
+            std::vector<uint8_t> tmp_data;
+            size_t res = set_blocks(blocks, tmp_data);
+            size = res+4;
+            res += message_base::serialize(data);
+            data.insert(data.end(), tmp_data.begin(), tmp_data.end());
+
             return res;
         }
         std::vector<block> blocks;
@@ -149,6 +158,8 @@ namespace skycoin { namespace coin {
     //
 #define CASE_4CC(x) case fourcc(x): \
                         res = std::make_unique<message<fourcc(x)>>(); \
+                        res->name = x; \
+                        res->size = size; \
                     break;
 
     inline std::unique_ptr<message_base> message_factory(fourcc_t name, size_t size = 0) {
