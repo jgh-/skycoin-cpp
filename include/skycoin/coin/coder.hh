@@ -4,6 +4,7 @@
 #include <experimental/optional>
 #include <string>
 #include <vector>
+#include <array>
 
 #include <arpa/inet.h>
 #include <stdint.h>

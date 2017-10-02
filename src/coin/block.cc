@@ -34,7 +34,7 @@ namespace skycoin { namespace coin {
             res += e.set(it.hours);
         }
         uint32_t* len = reinterpret_cast<uint32_t*>(&data[length_pos]);
-        *len = res; // length is not inclusive(??)
+        *len = res; // length here appears to be inclusive.
 
         return res;
     }

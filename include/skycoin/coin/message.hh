@@ -1,8 +1,8 @@
 #ifndef SKYCOIN__COIN_MESSAGE_HH
 #define SKYCOIN__COIN_MESSAGE_HH
 
+#include <skycoin/coin/peer.hh>
 #include <skycoin/coin/block.hh>
-#include <skycoin/log.hh>
 
 #include <string>
 #include <memory>
@@ -140,13 +140,36 @@ namespace skycoin { namespace coin {
 
             std::vector<uint8_t> tmp_data;
             size_t res = set_blocks(blocks, tmp_data);
-            size = res+4;
+            size = res+4; // don't count size field, just name.
             res += message_base::serialize(data);
             data.insert(data.end(), tmp_data.begin(), tmp_data.end());
 
             return res;
         }
         std::vector<block> blocks;
+    };
+
+    template<>
+    struct message<MsgGivePeers> : public message_base 
+    {
+        size_t deserialize(uint8_t* data, size_t len) {
+            size_t res = message_base::deserialize(data, len);
+            if(res > 0) {
+                res += get_peers(data + res, len - res, peers);
+            }
+            return res;
+        }
+        size_t serialize(std::vector<uint8_t>& data) {
+            std::vector<uint8_t> tmp_data;
+            size_t res = set_peers(peers, tmp_data);
+            size = res+4;
+            res += message_base::serialize(data);
+            data.insert(data.end(), tmp_data.begin(), tmp_data.end());
+
+            return res;
+        }
+
+        std::vector<peer> peers;
     };
 
     //
@@ -168,10 +191,19 @@ namespace skycoin { namespace coin {
             CASE_4CC("INTR");
             CASE_4CC("GIVB");
             CASE_4CC("GETB");
+            CASE_4CC("GIVP");
         }
         return res;
     }
 
+    template<int32_t Name>
+    inline message<Name>* message_cast(message_base* msg) {
+        if(msg->name.name == Name) {
+            return static_cast<message<Name>*>(msg);
+        } else {
+            return nullptr;
+        }
+    }
 } // namespace 
 }
 
