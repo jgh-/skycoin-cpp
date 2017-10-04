@@ -52,7 +52,6 @@ namespace skycoin { namespace coin {
 
         uint32_t tx_outputs = 0;
         d.safe_get(tx_outputs);
-
         for(uint32_t i = 0 ; i < tx_outputs; i++) {
             transaction_output to;
             d.safe_get(to.address);
@@ -75,11 +74,7 @@ namespace skycoin { namespace coin {
         res += e.set(prev_hash);
         res += e.set(body_hash);
         res += e.set(unspent_hash);
-        uint32_t tx_count(transactions.size());
-        res += e.set(tx_count);
-        for(auto& it : transactions) {
-            res += it.serialize(data);
-        }
+        res += set_transactions(transactions, data);
         res += e.set(signature);
         return res;
     }
@@ -95,13 +90,22 @@ namespace skycoin { namespace coin {
         d.safe_get(prev_hash);
         d.safe_get(body_hash);
         d.safe_get(unspent_hash);
+        d.advance(get_transactions(d.p(), d.remain(), transactions));
+        d.safe_get(signature);
+
+        return d.p() - data;
+    }
+
+    size_t 
+    get_transactions(uint8_t* data, size_t size, std::vector<transaction>& out_txs) {
+        decoder d(data, size);
         uint32_t tx_count = 0;
         d.safe_get(tx_count);
         for(uint32_t i = 0 ; i < tx_count; i++) {
             transaction t;
             auto res = t.deserialize(d.p(), d.remain());
             if(res > 0) { 
-                transactions.emplace_back(std::move(t));
+                out_txs.emplace_back(std::move(t));
                 d.advance(res);
             } else {
                 // error.
@@ -109,9 +113,18 @@ namespace skycoin { namespace coin {
                 break;
             }
         }
-        d.safe_get(signature);
-
         return d.p() - data;
+    }
+    size_t 
+    set_transactions(std::vector<transaction>& txs, std::vector<uint8_t>& out_data) {
+        encoder e(out_data);
+        size_t res = 0;
+        uint32_t tx_count(txs.size());
+        res += e.set(tx_count);
+        for(auto& it : txs) {
+            res += it.serialize(out_data);
+        }
+        return res;
     }
 
     size_t

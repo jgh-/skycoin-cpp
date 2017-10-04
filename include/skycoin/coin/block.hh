@@ -74,7 +74,8 @@ In base 58 format the address is 20+1+4 bytes
 
     size_t get_blocks(uint8_t* data, size_t size,  std::vector<block>& out_blocks);
     size_t set_blocks(std::vector<block>& blocks, std::vector<uint8_t>& out_data);
-    
+    size_t get_transactions(uint8_t* data, size_t size, std::vector<transaction>& out_txs);
+    size_t set_transactions(std::vector<transaction>& txs, std::vector<uint8_t>& out_data);
 }
 }
 

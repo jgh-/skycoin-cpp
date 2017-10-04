@@ -150,6 +150,30 @@ namespace skycoin { namespace coin {
     };
 
     template<>
+    struct message<MsgGiveTxns> : public message_base 
+    {
+        size_t deserialize(uint8_t* data, size_t len) {
+            size_t res = message_base::deserialize(data, len);
+            if( res > 0 ) {
+                res += get_transactions(data+res, len-res, transactions);
+            }
+
+            return res;
+        }
+        size_t serialize(std::vector<uint8_t>& data) {
+
+            std::vector<uint8_t> tmp_data;
+            size_t res = set_transactions(transactions, tmp_data);
+            size = res+4; // don't count size field, just name.
+            res += message_base::serialize(data);
+            data.insert(data.end(), tmp_data.begin(), tmp_data.end());
+
+            return res;
+        }
+        std::vector<transaction> transactions;
+    };
+
+    template<>
     struct message<MsgGivePeers> : public message_base 
     {
         size_t deserialize(uint8_t* data, size_t len) {
@@ -192,6 +216,7 @@ namespace skycoin { namespace coin {
             CASE_4CC("GIVB");
             CASE_4CC("GETB");
             CASE_4CC("GIVP");
+            CASE_4CC("GIVT");
         }
         return res;
     }

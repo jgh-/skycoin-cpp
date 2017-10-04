@@ -18,3 +18,6 @@ target_link_libraries(test_block skycoin)
 
 add_executable(test_peer "test/test_peer.cc")
 target_link_libraries(test_peer skycoin)
+
+add_executable(test_tx "test/test_tx.cc")
+target_link_libraries(test_tx skycoin)
